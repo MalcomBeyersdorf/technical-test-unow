@@ -2,12 +2,14 @@ import { startWith, Subject, switchMap, of } from 'rxjs';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ListStore } from './list.store';
+import { DetailService } from '../../detail/data-access/detail.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ListService {
   //private readonly apiService: ApiService = inject(ApiService);
+  private readonly detailService: DetailService = inject(DetailService);
   private readonly listStore: ListStore = inject(ListStore);
 
   private $state = signal<any>({
@@ -38,6 +40,7 @@ export class ListService {
     ),
   );
   action$ = new Subject<any>();
+  selectEmployee$ = new Subject<any>();
 
   constructor() {
     this.dataLoaded$.pipe(takeUntilDestroyed()).subscribe({
@@ -50,25 +53,22 @@ export class ListService {
               }));
             */
       },
-      error: (error) =>
-        this.$state.update((state) => ({ ...state, error, status: 'error' })),
+      error: (error) => this.$state.update((state) => ({ ...state, error, status: 'error' })),
     });
 
-    this.action$
-      .pipe(takeUntilDestroyed())
-      .subscribe((subjectReceived: any) => {
-        if (subjectReceived) {
-          // do something
-        } else {
-          // do something
-        }
-      });
+    this.action$.pipe(takeUntilDestroyed()).subscribe((subjectReceived: any) => {
+      if (subjectReceived) {
+        // do something
+      } else {
+        // do something
+      }
+    });
 
-    this.retry$
-      .pipe(takeUntilDestroyed())
-      .subscribe(() =>
-        this.$state.update((state) => ({ ...state, status: 'loading' })),
-      );
+    this.selectEmployee$.pipe(takeUntilDestroyed()).subscribe((data: any) => {
+      this.detailService.setSelectedEmployee$.next(data);
+    });
+
+    this.retry$.pipe(takeUntilDestroyed()).subscribe(() => this.$state.update((state) => ({ ...state, status: 'loading' })));
 
     effect(() => {
       if (this.$state().status === 'success') {

@@ -1,7 +1,8 @@
-import { startWith, Subject, switchMap, of } from 'rxjs';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { Subject } from 'rxjs';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DetailStore } from './detail.store';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root',
@@ -9,71 +10,42 @@ import { DetailStore } from './detail.store';
 export class DetailService {
   //private readonly apiService: ApiService = inject(ApiService);
   private readonly detailStore: DetailStore = inject(DetailStore);
+  private readonly formBuilder: FormBuilder = inject(FormBuilder);
 
   private $state = signal<any>({
-    data: [],
+    employee: null,
     status: 'loading',
     error: null,
   });
 
-  $data = computed(() => this.$state().data);
+  employeeForm = this.formBuilder.group({
+    nombre: ['', Validators.required],
+    apellido: ['', Validators.required],
+    puesto: ['', Validators.required],
+    fechaNacimiento: ['', Validators.required],
+  });
+
+  $employee = computed(() => this.$state().employee);
+  $isNewEmployee = computed(() => this.$state().employee == null || this.$state().employee == undefined);
   $status = computed(() => this.$state().status);
   $error = computed(() => this.$state().error);
 
-  retry$ = new Subject<void>();
-  private dataLoaded$ = this.retry$.pipe(
-    startWith(null),
-    switchMap(
-      () => of(console.log('api request')),
-      /*
-            this.apiService.get().pipe(
-              retry({
-                delay: error => {
-                  this.$state.update(state => ({ ...state, error, status: 'error' }));
-                  return this.retry$;
-                },
-              }),
-            ),
-            */
-    ),
-  );
-  action$ = new Subject<any>();
+  createEmployee$ = new Subject<any>();
+  setSelectedEmployee$ = new Subject<any>();
+  clearSelection$ = new Subject<void>();
 
   constructor() {
-    this.dataLoaded$.pipe(takeUntilDestroyed()).subscribe({
-      next: (response: any) => {
-        /*
-              this.$state.update(state => ({
-                ...state,
-                data: response.data,
-                status: 'success',
-              }));
-            */
-      },
-      error: (error) =>
-        this.$state.update((state) => ({ ...state, error, status: 'error' })),
+    this.setSelectedEmployee$.pipe(takeUntilDestroyed()).subscribe((data: any) => {
+      console.log('data', data);
+      this.$state.update((state) => ({ ...state, employee: data }));
     });
 
-    this.action$
-      .pipe(takeUntilDestroyed())
-      .subscribe((subjectReceived: any) => {
-        if (subjectReceived) {
-          // do something
-        } else {
-          // do something
-        }
-      });
+    this.createEmployee$.pipe(takeUntilDestroyed()).subscribe((data: any) => {
+      console.log('Data para crear empleado', data);
+    });
 
-    this.retry$
-      .pipe(takeUntilDestroyed())
-      .subscribe(() =>
-        this.$state.update((state) => ({ ...state, status: 'loading' })),
-      );
-
-    effect(() => {
-      if (this.$state().status === 'success') {
-        this.detailStore.saveData(this.$data());
-      }
+    this.clearSelection$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.$state.update((state) => ({ ...state, employee: null }));
     });
   }
 }

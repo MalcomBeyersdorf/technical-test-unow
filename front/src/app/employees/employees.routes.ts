@@ -3,8 +3,9 @@ import { ListComponent } from './list/feature/list.component';
 import { DetailComponent } from './detail/feature/detail.component';
 
 export const EMPLOYEES_ROUTES: Routes = [
+  { path: '', redirectTo: 'list', pathMatch: 'full' },
   {
-    path: '',
+    path: 'list',
     component: ListComponent,
   },
   {
@@ -12,4 +13,3 @@ export const EMPLOYEES_ROUTES: Routes = [
     component: DetailComponent,
   },
 ];
-
