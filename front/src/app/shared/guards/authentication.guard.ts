@@ -4,7 +4,7 @@ import { SecurityService } from '../services/security.service';
 
 export const authenticationGuard: CanActivateFn = async (_route: ActivatedRouteSnapshot, _state: RouterStateSnapshot) => {
   const securityService = inject(SecurityService);
-  if (securityService.$userData()) {
+  if (securityService.$token()) {
     return true;
   }
   return false;

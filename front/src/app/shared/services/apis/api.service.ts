@@ -13,6 +13,10 @@ export class ApiService {
     return this.http.get<any>(this.getUrl('healthz')).pipe(catchError(this.handleError));
   }
 
+  getEmployees(): Observable<{ jobTypes: string[] }> {
+    return this.http.get<{ jobTypes: string[] }>(this.getUrl('employees')).pipe(catchError(this.handleError));
+  }
+
   getJobTypes(): Observable<{ jobTypes: string[] }> {
     return this.http.get<{ jobTypes: string[] }>(this.getUrl('jobs/types')).pipe(catchError(this.handleError));
   }

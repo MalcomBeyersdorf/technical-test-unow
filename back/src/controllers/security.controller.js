@@ -1,10 +1,12 @@
 import User from "../schemas/user.schema.js";
 import { generateToken } from "../utils/jwt.util.js";
+import pkg from "bcryptjs";
+const { compareSync } = pkg;
 
-export function signIn(req, res) {
+export async function signIn(req, res) {
   const { email, password } = req.body;
 
-  const user = User.find((u) => u.email === email);
+  const user = await User.findOne({ email });
   if (!user || !compareSync(password, user.password)) {
     return res.status(401).json({ message: "Invalid email or password" });
   }

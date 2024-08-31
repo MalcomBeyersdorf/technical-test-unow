@@ -13,7 +13,7 @@ import { MessageService } from 'primeng/api';
   imports: [RouterOutlet, APP_PRIMENG_MODULE, ToastModule],
   providers: [MessageService],
   template: `
-    @if (securityService.$userData()) {
+    @if (securityService.$token()) {
       <div class="card">
         <p-menubar [model]="[]">
           <ng-template pTemplate="end">

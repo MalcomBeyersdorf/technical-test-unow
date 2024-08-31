@@ -1,15 +1,15 @@
 version: "3.8"
 
 services:
-  frontend:
-    build: ./front
-    container_name: frontend
-    ports:
-      - "4200:4200"
-    depends_on:
-      - backend
-    networks:
-      - app-network
+  # frontend:
+  #   build: ./front
+  #   container_name: frontend
+  #   ports:
+  #     - "4200:4200"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
 
   backend:
     build: ./back
@@ -17,7 +17,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - MONGO_URI=mongodb://localhost:27017/unow-test-db
+      - MONGO_URI=mongodb://mongo-db:27017/unow-test-db
       - JWT_SECRET=unow-secret-key
       - JWT_EXPIRES_IN=1H
     depends_on:

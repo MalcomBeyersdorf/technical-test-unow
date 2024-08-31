@@ -1,4 +1,4 @@
-import { startWith, Subject, switchMap, of, lastValueFrom } from 'rxjs';
+import { startWith, Subject, switchMap, of, lastValueFrom, tap } from 'rxjs';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CookieHelper } from '../utils/cookie.helper';
@@ -32,12 +32,13 @@ export class SecurityService {
   retry$ = new Subject<void>();
   private dataLoaded$ = this.retry$.pipe(
     startWith(null),
-    switchMap(() => {
-      // TODO: Tomar de localStorage
-      const token = this.cookieHelper.getCookie('token');
-      if (token && this.cookieHelper.isTokenValid(token)) {
-        return of(token);
-      } else return of(this.signOut$.next());
+    switchMap(async () => {
+      const posibleToken = await lastValueFrom(this.store.loadData());
+      console.log(posibleToken);
+      if (posibleToken) {
+        return of(posibleToken);
+      }
+      return of(this.signOut$.next());
     }),
   );
   checkServer$ = new Subject<void>();
@@ -47,17 +48,28 @@ export class SecurityService {
   signUp$ = new Subject<any>();
 
   constructor() {
-    this.dataLoaded$.pipe(takeUntilDestroyed()).subscribe({
-      next: (token: any) => {
-        this.$state.update((state) => ({
-          ...state,
-          userData: {},
-          token: token,
-          status: 'success',
-        }));
-      },
-      error: (error) => this.$state.update((state) => ({ ...state, error, status: 'error' })),
-    });
+    this.dataLoaded$
+      .pipe(
+        takeUntilDestroyed(),
+
+        tap(() =>
+          this.$state.update((state) => ({
+            ...state,
+            status: 'loading',
+          })),
+        ),
+      )
+      .subscribe({
+        next: (token: any) => {
+          this.$state.update(async (state) => ({
+            ...state,
+            userData: {},
+            token: await lastValueFrom(token),
+            status: 'success',
+          }));
+        },
+        error: (error) => this.$state.update((state) => ({ ...state, error, status: 'error' })),
+      });
 
     this.signOut$.pipe(takeUntilDestroyed()).subscribe(async () => {
       this.$state.update((state) => ({
@@ -65,11 +77,18 @@ export class SecurityService {
         userData: undefined,
         status: 'success',
       }));
+      this.router.navigateByUrl('access/sign-in');
     });
 
     this.signIn$
       .pipe(
         takeUntilDestroyed(),
+        tap(() =>
+          this.$state.update((state) => ({
+            ...state,
+            status: 'loading',
+          })),
+        ),
         switchMap((body) => this.apiService.signIn(body)),
       )
       .subscribe({
@@ -80,7 +99,6 @@ export class SecurityService {
             token: response.token,
             status: 'success',
           }));
-          this.router.navigate(['employees/']);
         },
         error: (error) => {
           this.$state.update((state) => ({
@@ -94,6 +112,14 @@ export class SecurityService {
     this.signUp$
       .pipe(
         takeUntilDestroyed(),
+
+        tap(() =>
+          this.$state.update((state) => ({
+            ...state,
+            status: 'loading',
+          })),
+        ),
+
         switchMap((body) => this.apiService.signUp(body)),
       )
       .subscribe({
@@ -104,7 +130,7 @@ export class SecurityService {
             token: response.token,
             status: 'success',
           }));
-          this.router.navigate(['employees/']);
+          this.router.navigateByUrl('employees/list');
         },
         error: (error) => {
           this.$state.update((state) => ({
@@ -125,6 +151,7 @@ export class SecurityService {
     });
 
     this.retry$.pipe(takeUntilDestroyed()).subscribe(() => this.$state.update((state) => ({ ...state, status: 'loading' })));
+
     effect(() => {
       if (this.$state().status == 'success') this.store.saveData(this.$state().token);
     });

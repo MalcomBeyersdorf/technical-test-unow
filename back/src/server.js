@@ -9,16 +9,22 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const connectDatabaseWithRetry = async () => {
+  console.log("Attempting MongoDB connection with retry...");
+  try {
+    await connect(process.env.MONGO_URI);
+    return console.log("MongoDB connected");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+    setTimeout(connectDatabaseWithRetry, 5000);
+  }
+};
+
 const app = express();
 app.use(json());
 app.use(cors()); // Necesario para desarrollo
 
-connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+connectDatabaseWithRetry();
 
 app.get("/healthz", (_, res) => {
   res.status(200).json({ message: "Server working" });

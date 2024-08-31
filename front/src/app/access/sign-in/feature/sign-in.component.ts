@@ -43,9 +43,16 @@ export class SignInComponent {
   }
 
   _effect = effect(() => {
-    if (this.service.$status() == 'error') {
-      this.messageService.add({ severity: 'error', summary: 'Error:', detail: this.service.$error() });
-      console.log(this.service.$error());
+    switch (this.service.$status()) {
+      case 'success':
+        this.router.navigate(['employees/list']);
+        break;
+      case 'error':
+        this.messageService.add({ severity: 'error', summary: 'Error:', detail: this.service.$error() });
+        break;
+
+      default:
+        break;
     }
   });
 }
