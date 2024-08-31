@@ -1,17 +1,107 @@
 <div class="flex justify-content-center align-items-center min-h-screen">
   <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
-    <p-button (click)="location.back()" icon="pi pi-chevron-left" [rounded]="true" [text]="true" severity="primary" />
+    <p-button (click)="location.back()" icon="pi pi-chevron-left" [rounded]="true" [text]="true" severity="primary"></p-button>
+
     <div class="text-center mb-5">
       <div class="text-900 text-3xl font-medium mb-3">Crea una cuenta</div>
     </div>
-    <div>
-      <label for="email" class="block text-900 font-medium mb-2">Email</label>
-      <input id="email" type="text" placeholder="Email address" pInputText class="w-full mb-3" />
-      <label for="password" class="block text-900 font-medium mb-2">Contraseña</label>
-      <input id="password" type="password" placeholder="Password" pInputText class="w-full mb-3" />
-      <label for="confirmPassword" class="block text-900 font-medium mb-2">Confirmar contraseña</label>
-      <input id="confirmPassword" type="password" placeholder="Confirm password" pInputText class="w-full mb-3" />
-      <button pButton pRipple (click)="handleSubmit()" label="Registrarse" icon="pi pi-user" class="w-full"></button>
-    </div>
+
+    <form [formGroup]="service.registerForm" (ngSubmit)="handleSubmit()">
+      <div>
+        <label for="firstName" class="block text-900 font-medium mb-2">Nombre</label>
+        <input id="firstName" type="text" formControlName="firstName" placeholder="Nombre" pInputText class="w-full mb-3" />
+        @if (firstName?.invalid && firstName?.touched) {
+          <div class="text-red-500 text-sm">
+            @if (firstName?.errors?.["required"]) {
+              <div>Nombre es requerido.</div>
+            }
+          </div>
+        }
+
+        <label for="lastName" class="block text-900 font-medium mb-2">Apellido</label>
+        <input id="lastName" type="text" formControlName="lastName" placeholder="Apellido" pInputText class="w-full mb-3" />
+        @if (lastName?.invalid && lastName?.touched) {
+          <div class="text-red-500 text-sm">
+            @if (lastName?.errors?.["required"]) {
+              <div>Apellido es requerido.</div>
+            }
+          </div>
+        }
+
+        <label for="email" class="block text-900 font-medium mb-2">Email</label>
+        <input id="email" type="text" formControlName="email" placeholder="Email address" pInputText class="w-full mb-3" />
+        @if (email?.invalid && email?.touched) {
+          <div class="text-red-500 text-sm">
+            @if (email?.errors?.["required"]) {
+              <div>Email es requerido.</div>
+            }
+            @if (email?.errors?.["email"]) {
+              <div>Formato de email inválido.</div>
+            }
+          </div>
+        }
+
+        <label for="password" class="block text-900 font-medium mb-2">Contraseña</label>
+        <input id="password" type="password" formControlName="password" placeholder="Password" pInputText class="w-full mb-3" />
+        @if (password?.invalid && password?.touched) {
+          <div class="text-red-500 text-sm">
+            @if (password?.errors?.["required"]) {
+              <div>Contraseña es requerida.</div>
+            }
+            @if (password?.errors?.["minlength"]) {
+              <div>Contraseña debe tener al menos 6 caracteres.</div>
+            }
+          </div>
+        }
+
+        <label for="confirmPassword" class="block text-900 font-medium mb-2">Confirmar contraseña</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Confirm password" pInputText class="w-full mb-3" />
+        @if (confirmPassword?.invalid && confirmPassword?.touched) {
+          <div class="text-red-500 text-sm">
+            @if (confirmPassword?.errors?.["required"]) {
+              <div>Confirmación de contraseña es requerida.</div>
+            }
+            @if (confirmPassword?.errors?.["mismatch"]) {
+              <div>Las contraseñas no coinciden.</div>
+            }
+          </div>
+        }
+
+        <label for="job" class="block text-900 font-medium mb-2">Puesto de trabajo</label>
+        <p-dropdown
+          id="job"
+          formControlName="job"
+          [loading]="service.$status() == 'loading'"
+          [options]="service.$jobTypes()"
+          placeholder="Selecciona un puesto"
+          class="w-full mb-4"
+        ></p-dropdown>
+        @if (job?.invalid && job?.touched) {
+          <div class="text-red-500 text-sm">
+            @if (job?.errors?.["required"]) {
+              <div>Puesto d trabajo es requerido.</div>
+            }
+          </div>
+        }
+
+        <label for="birthDate" class="block text-900 font-medium mb-2">Fecha de nacimiento</label>
+        <p-calendar id="birthDate" formControlName="birthDate" placeholder="Selecciona una fecha" class="w-full mb-3"></p-calendar>
+        @if (birthDate?.invalid && birthDate?.touched) {
+          <div class="text-red-500 text-sm">
+            @if (birthDate?.errors?.["required"]) {
+              <div>Fecha de nacimiento es requerida.</div>
+            }
+          </div>
+        }
+
+        <button pButton pRipple (keyup.enter)="handleSubmit()" type="submit" class="w-full flex align-items-center justify-content-center mt-4">
+          @if (service.$securityStatus() === "loading") {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <span>Registrarse</span>
+          }
+        </button>
+      </div>
+    </form>
   </div>
 </div>

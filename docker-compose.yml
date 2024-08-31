@@ -1,16 +1,16 @@
 version: "3.8"
 
 services:
-  frontend:
-    build: ./front
-    container_name: frontend
-    ports:
-      - "4200:4200"
-    depends_on:
-      - backend
-    networks:
-      - app-network
-
+  # frontend:
+  #   build: ./front
+  #   container_name: frontend
+  #   ports:
+  #     - "4200:4200"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
+  #
   backend:
     build: ./back
     container_name: backend

@@ -24,8 +24,8 @@ Crea servicios front, back y base de datos.
 curl -X POST <http://localhost:3000/security/sign-in> \
 -H "Content-Type: application/json" \
 -d '{
-"username": "user1",
-"password": "password1"
+  "email": "ejemplo@ejemplo.com",
+  "password": "password1"
 }'
 ```
 
@@ -39,7 +39,47 @@ curl -X POST http://localhost:3000/security/sign-up \
   "lastName": "Doe",
   "job": "Engineer",
   "birthDate": "1990-01-01",
-  "username": "johndoe",
-  "password": "password123"
+  "email": "ejemplo@ejemplo.com",
+  "password": "password1"
 }'
+```
+
+- CRUD Employees:
+
+```
+curl -X GET http://localhost:3000/test-token
+```
+
+```
+curl -X POST http://localhost:3000/employees \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <your_jwt_token>" \
+-d '{
+  "firstName": "John",
+  "lastName": "Doe",
+  "job": "Software Engineer",
+  "birthDate": "1990-01-01"
+}'
+```
+
+```
+curl -X GET http://localhost:3000/employees \
+-H "Authorization: Bearer <your_jwt_token>" \
+```
+
+```
+curl -X PUT http://localhost:3000/employees/<employeeId> \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <your_jwt_token>" \
+-d '{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "job": "Product Manager",
+  "birthDate": "1985-07-15"
+}'
+```
+
+```
+curl -X DELETE http://localhost:3000/employees/<employeeId> \
+-H "Authorization: Bearer <your_jwt_token>" \
 ```

@@ -1,36 +1,25 @@
-require("dotenv").config();
-// const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const User = require("../schemas/user.schema");
-const { generateToken } = require("../utils/jwt.util");
+import User from "../schemas/user.schema.js";
+import { generateToken } from "../utils/jwt.util.js";
 
-const users = [
-  {
-    id: 1,
-    username: "user1",
-    password: bcrypt.hashSync("password1", 8), // Contraseña encriptada
-  },
-];
+export function signIn(req, res) {
+  const { email, password } = req.body;
 
-exports.signIn = (req, res) => {
-  const { username, password } = req.body;
-
-  const user = users.find((u) => u.username === username);
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(401).json({ message: "Invalid username or password" });
+  const user = User.find((u) => u.email === email);
+  if (!user || !compareSync(password, user.password)) {
+    return res.status(401).json({ message: "Invalid email or password" });
   }
 
-  const token = generateToken({ id: user.id });
+  const token = generateToken({ id: user._id });
   res.json({ message: "Signed in successfully", token });
-};
+}
 
-exports.signUp = async (req, res) => {
-  const { firstName, lastName, job, birthDate, username, password } = req.body;
+export async function signUp(req, res) {
+  const { firstName, lastName, job, birthDate, email, password } = req.body;
 
   try {
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Username already exists" });
+      return res.status(400).json({ message: "email already exists" });
     }
 
     const user = new User({
@@ -38,7 +27,7 @@ exports.signUp = async (req, res) => {
       lastName,
       job,
       birthDate,
-      username,
+      email,
       password,
     });
 
@@ -48,8 +37,8 @@ exports.signUp = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error creating user", error });
   }
-};
+}
 
-exports.signOut = (_, res) => {
+export function signOut(_, res) {
   res.json({ message: "Signed out successfully" });
-};
+}

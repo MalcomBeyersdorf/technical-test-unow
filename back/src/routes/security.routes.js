@@ -1,13 +1,10 @@
-const express = require("express");
-const router = express.Router();
-const {
-  signIn,
-  signOut,
-  signUp,
-} = require("../controllers/security.controller");
+import { Router } from "express";
+import { signIn, signOut, signUp } from "../controllers/security.controller.js";
 
-router.post("/sign-in", signIn);
-router.post("/sign-out", signOut);
-router.post("/sign-up", signUp);
+const securityRoutes = Router();
 
-module.exports = router;
+securityRoutes.post("/sign-in", signIn);
+securityRoutes.post("/sign-out", signOut);
+securityRoutes.post("/sign-up", signUp);
+
+export default securityRoutes;

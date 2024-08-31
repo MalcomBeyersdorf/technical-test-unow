@@ -21,7 +21,7 @@ export class ForgetService {
 
   constructor() {
     this.action$.pipe(takeUntilDestroyed()).subscribe((email: any) => {
-      this.securityService.action$.next(email);
+      // this.securityService.action$.next(email);
     });
   }
 }
