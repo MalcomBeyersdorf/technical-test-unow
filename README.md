@@ -14,7 +14,7 @@ Crea servicios front, back y base de datos.
 
 - <http://localhost:4200/> Acceso al front
 - <http://localhost:3000/healthz> Acceso al back (prueba de vida)
-- Uri mongo -> mongodb://mongodb:27017/mydatabase
+- Uri mongo -> mongodb://mongodb:27017/unow-test-db
 
 ### Ejemplos cURLS para backend
 
